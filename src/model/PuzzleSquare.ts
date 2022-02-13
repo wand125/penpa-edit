@@ -3933,7 +3933,7 @@ export class Puzzle_square extends Puzzle {
 
   draw_darts(ctx, num, x, y) {
     set_circle_style(ctx, 9);
-    if ((1 <= num, num <= 4)) {
+    if ((1 <= num && num <= 4)) {
       for (var i = 1; i <= num; i++) {
         this.draw_circle(ctx, x, y, Math.sqrt(2) * 0.5 * (2 * i - 1));
       }

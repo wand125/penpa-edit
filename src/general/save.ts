@@ -111,7 +111,7 @@ export const saveimage = () => {
   document.getElementById("modal-image").style.display = "block";
 };
 
-function saveimage_download() {
+function saveimage_download(pu) {
   var downloadLink = document.getElementById(
     "download_link"
   ) as HTMLAnchorElement;

@@ -27,7 +27,7 @@
       a.push(x < 0 ? len + x : x, y);
     }
     a.push(len, 0);
-    for (var i = controlPoints.length; i > 0; i -= 2) {
+    for (let i = controlPoints.length; i > 0; i -= 2) {
       var x = controlPoints[i - 2];
       var y = controlPoints[i - 1];
       a.push(x < 0 ? len + x : x, -y);

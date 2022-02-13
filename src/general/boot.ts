@@ -1,5 +1,6 @@
 import { boot_parameters } from "./boot_parameters";
 import { create } from "./create";
+import { load } from "./load";
 
 export const boot = (state) => {
   var obj = document.getElementById("dvique");

@@ -570,7 +570,7 @@ export class Puzzle {
 
   canvasxy_update() {
     //space for imagesave
-    this.size = parseInt(document.getElementById("nb_size3").value);
+    this.size = parseInt(document.getElementById("nb_size3")['value']);
     this.canvasx = this.width_c * this.size;
     this.canvasy = this.height_c * this.size;
   }
@@ -594,7 +594,7 @@ export class Puzzle {
     var cy = this.canvasy;
 
     this.mode[this.mode.qa].edit_mode = "surface"; //選択枠削除用
-    if (document.getElementById("nb_margin2").checked) {
+    if (document.getElementById("nb_margin2")['checked']) {
       var obj = this.gridspace_calculate();
       var yu = obj.yu,
         yd = obj.yd,
@@ -608,7 +608,7 @@ export class Puzzle {
     this.redraw();
 
     var qual;
-    if (document.getElementById("nb_quality1").checked) {
+    if (document.getElementById("nb_quality1")['checked']) {
       qual = 1;
     } else {
       qual = 1.5;
@@ -631,7 +631,7 @@ export class Puzzle {
     var canvastext = resizedCanvas.toDataURL("image/png");
     this.mode[this.mode.qa].edit_mode = mode;
 
-    if (document.getElementById("nb_margin2").checked) {
+    if (document.getElementById("nb_margin2")['checked']) {
       this.canvasx = cx;
       this.canvasy = cy;
       this.point_move(xl, yu, 0);
@@ -726,7 +726,7 @@ export class Puzzle {
       document.getElementById("style_" + mode).style.display = "inline-block";
     }
 
-    document.getElementById("mo_" + mode).checked = true;
+    document.getElementById("mo_" + mode)['checked'] = true;
     this.submode_check(
       "sub_" +
         mode +
@@ -763,9 +763,9 @@ export class Puzzle {
 
   submode_check(name) {
     if (document.getElementById(name)) {
-      document.getElementById(name).checked = true;
+      document.getElementById(name)['checked'] = true;
       this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] =
-        document.getElementById(name).value;
+        document.getElementById(name)['value'];
       this.cursolcheck(); //override
       this.redraw(); //盤面カーソル更新
     }
@@ -782,9 +782,9 @@ export class Puzzle {
 
   stylemode_check(name) {
     if (document.getElementById(name)) {
-      document.getElementById(name).checked = true;
+      document.getElementById(name)['checked'] = true;
       this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1] = parseInt(
-        document.getElementById(name).value
+        document.getElementById(name)['value']
       );
       panel_pu.draw_panel(); //パネル更新
     }
@@ -805,14 +805,14 @@ export class Puzzle {
   }
 
   mode_qa(mode) {
-    document.getElementById(mode).checked = true;
+    document.getElementById(mode)['checked'] = true;
     this.mode.qa = mode;
     this.mode_set(this.mode[this.mode.qa].edit_mode);
     this.redraw(); //cursol更新用
   }
 
   mode_grid(mode) {
-    document.getElementById(mode).checked = true;
+    document.getElementById(mode)['checked'] = true;
     if (mode.slice(0, -1) === "nb_grid") {
       this.mode.grid[0] = mode.slice(-1);
     } else if (mode.slice(0, -1) === "nb_lat") {
@@ -1171,7 +1171,7 @@ export class Puzzle {
     var text = "";
     var gridsize = "19.842";
     var fontsize = "16";
-    var header = document.getElementById("savetextarea_pp").value;
+    var header = document.getElementById("savetextarea_pp")['value'];
 
     //セット
     if (header != "") {
@@ -1433,8 +1433,8 @@ export class Puzzle {
         fontsize +
         "\n" +
         "*TextAlignment:1,1\n";
-      for (var j = 2; j < this.ny0 - 2; j++) {
-        for (var i = 2; i < this.nx0 - 2; i++) {
+      for (let j = 2; j < this.ny0 - 2; j++) {
+        for (let i = 2; i < this.nx0 - 2; i++) {
           if (
             this.pu_a.number[i + j * this.nx0] &&
             this.pu_a.number[i + j * this.nx0][2] === "1" &&
@@ -1505,9 +1505,9 @@ export class Puzzle {
         "*Alignment:0,0\n" +
         "*Fill:100\n" +
         "*Stroke:-1,0,0,1\n";
-      var k;
-      for (var j = 0; j < 2 * this.ny0 - 8; j++) {
-        for (var i = 0; i < 2 * this.nx0 - 8; i++) {
+      let k;
+      for (let j = 0; j < 2 * this.ny0 - 8; j++) {
+        for (let i = 0; i < 2 * this.nx0 - 8; i++) {
           if (j % 2 === 0 && i % 2 === 0) {
             k =
               4 * this.nx0 * this.ny0 +
@@ -1803,8 +1803,8 @@ export class Puzzle {
       "*Fill:0\n" +
       "*Stroke:-1,0,0,1\n" +
       "*Border:-1,0,0,1\n";
-    for (var j = 2; j < this.ny0 - 2; j++) {
-      for (var i = 2; i < this.nx0 - 2; i++) {
+    for (let j = 2; j < this.ny0 - 2; j++) {
+      for (let i = 2; i < this.nx0 - 2; i++) {
         if (this.centerlist.indexOf(i + j * this.nx0) != -1) {
           text += "1 ";
         } else {
@@ -4305,7 +4305,7 @@ export class Puzzle {
       var text = JSON.stringify(this.make_solution());
       if (text === this.solution && this.sol_flag === 0) {
         setTimeout(() => {
-          if (document.getElementById("english").value === "English") {
+          if (document.getElementById("english")['value'] === "English") {
             alert("正解です");
           } else {
             alert("Solved.");

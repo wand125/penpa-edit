@@ -1432,8 +1432,8 @@ export class Puzzle_iso extends Puzzle_truncated_square {
           y + ctx.lineWidth * 0.3 * Math.sin(th)
         );
         ctx.lineTo(
-          x - 0.5 * pu.size * Math.cos(th),
-          y - 0.5 * pu.size * Math.sin(th)
+          x - 0.5 * this.size * Math.cos(th),
+          y - 0.5 * this.size * Math.sin(th)
         );
         ctx.stroke();
       }
@@ -1453,18 +1453,18 @@ export class Puzzle_iso extends Puzzle_truncated_square {
         ctx.beginPath();
         th = this.rotate_theta((num - 1) * 60 + 75);
         ctx.moveTo(
-          x + len * Math.sqrt(2) * pu.size * Math.cos(th),
-          y + len * Math.sqrt(2) * pu.size * Math.sin(th)
+          x + len * Math.sqrt(2) * this.size * Math.cos(th),
+          y + len * Math.sqrt(2) * this.size * Math.sin(th)
         );
         th = this.rotate_theta((num - 1) * 60 + 210);
         ctx.lineTo(
-          x + len * pu.size * Math.cos(th),
-          y + len * pu.size * Math.sin(th)
+          x + len * this.size * Math.cos(th),
+          y + len * this.size * Math.sin(th)
         );
         th = this.rotate_theta((num - 1) * 60 + 345);
         ctx.lineTo(
-          x + len * Math.sqrt(2) * pu.size * Math.cos(th),
-          y + len * Math.sqrt(2) * pu.size * Math.sin(th)
+          x + len * Math.sqrt(2) * this.size * Math.cos(th),
+          y + len * Math.sqrt(2) * this.size * Math.sin(th)
         );
         ctx.fill();
         ctx.stroke();
@@ -1486,19 +1486,19 @@ export class Puzzle_iso extends Puzzle_truncated_square {
       th = this.rotate_theta((num - 1) * 60 - 150);
       ctx.beginPath();
       ctx.arrow(
-        x - len1 * pu.size * Math.cos(th),
-        y - len1 * pu.size * Math.sin(th),
-        x + len2 * pu.size * Math.cos(th),
-        y + len2 * pu.size * Math.sin(th),
+        x - len1 * this.size * Math.cos(th),
+        y - len1 * this.size * Math.sin(th),
+        x + len2 * this.size * Math.cos(th),
+        y + len2 * this.size * Math.sin(th),
         [
           0,
-          w1 * pu.size,
-          r1 * pu.size,
-          w1 * pu.size,
-          r2 * pu.size,
-          w2 * pu.size,
-          r3 * pu.size,
-          w3 * pu.size,
+          w1 * this.size,
+          r1 * this.size,
+          w1 * this.size,
+          r2 * this.size,
+          w2 * this.size,
+          r3 * this.size,
+          w3 * this.size,
         ]
       );
       ctx.fill();
@@ -1513,8 +1513,8 @@ export class Puzzle_iso extends Puzzle_truncated_square {
       this.draw_arrowGP(
         ctx,
         num,
-        x + 0.5 * pu.size * Math.cos(th),
-        y + 0.5 * pu.size * Math.sin(th)
+        x + 0.5 * this.size * Math.cos(th),
+        y + 0.5 * this.size * Math.sin(th)
       );
     }
   }
@@ -1525,17 +1525,17 @@ export class Puzzle_iso extends Puzzle_truncated_square {
       th = this.rotate_theta((num - 1) * 60 - 150);
       ctx.beginPath();
       ctx.arrow(
-        x - len1 * pu.size * Math.cos(th),
-        y - len1 * pu.size * Math.sin(th),
-        x + len2 * pu.size * Math.cos(th),
-        y + len2 * pu.size * Math.sin(th),
+        x - len1 * this.size * Math.cos(th),
+        y - len1 * this.size * Math.sin(th),
+        x + len2 * this.size * Math.cos(th),
+        y + len2 * this.size * Math.sin(th),
         [
           0,
-          w1 * pu.size,
-          ri * pu.size,
-          w1 * pu.size,
-          ri * pu.size,
-          w2 * pu.size,
+          w1 * this.size,
+          ri * this.size,
+          w1 * this.size,
+          ri * this.size,
+          w2 * this.size,
         ]
       );
       ctx.fill();
@@ -1555,17 +1555,17 @@ export class Puzzle_iso extends Puzzle_truncated_square {
         th = this.rotate_theta(i * 60 - 150);
         ctx.beginPath();
         ctx.arrow(
-          x - len1 * pu.size * Math.cos(th),
-          y - len1 * pu.size * Math.sin(th),
-          x + len2 * pu.size * Math.cos(th),
-          y + len2 * pu.size * Math.sin(th),
+          x - len1 * this.size * Math.cos(th),
+          y - len1 * this.size * Math.sin(th),
+          x + len2 * this.size * Math.cos(th),
+          y + len2 * this.size * Math.sin(th),
           [
             0,
-            w1 * pu.size,
-            ri * pu.size,
-            w1 * pu.size,
-            ri * pu.size,
-            w2 * pu.size,
+            w1 * this.size,
+            ri * this.size,
+            w1 * this.size,
+            ri * this.size,
+            w2 * this.size,
           ]
         );
         ctx.fill();

@@ -1,5 +1,5 @@
 import { boot } from "./general/boot";
-import { onMove, onUp, onContextmenu, onKeyDown, onOut } from './main/Control';
+import { onMove, onUp, onContextmenu, onKeyDown, onOut, onDown } from './main/Control';
 import { State } from "./State";
 
 const state = new State();
@@ -165,7 +165,7 @@ window.onload = () => {
       //canvas
       case "canvas":
         document.getElementById("inputtext").blur(); //テキストボックスからフォーカスを外す
-        onDown(e);
+        statedController(onDown)(e);
         if (checkms === 0) {
           e.preventDefault();
         }
