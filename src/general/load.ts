@@ -60,7 +60,7 @@ export const load = (state, urlParam) => {
   pu.center_n = parseInt(rtext_para[9]);
   pu.center_n0 = parseInt(rtext_para[10]);
 
-  const panel_pu = new Panel();
+  const panel_pu = new Panel(state);
 
   for (var i = 0; i < pu.replace.length; i++) {
     rtext[2] = rtext[2].split(pu.replace[i][1]).join(pu.replace[i][0]);
@@ -208,7 +208,7 @@ export const loadver1 = (state, paramArray, rtext) => {
   pu.search_center();
   pu.center_n0 = pu.center;
 
-  state.panel_pu = new Panel();
+  state.panel_pu = new Panel(state);
 
   let rtext_qa: {
     pu_q?: any;

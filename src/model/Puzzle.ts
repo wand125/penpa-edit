@@ -1289,8 +1289,8 @@ export class Puzzle {
         i2 = Number(i.split(",")[1]);
         y1 = (i1 % this.nx0) - 2;
         y2 = (i2 % this.nx0) - 2;
-        x1 = parseInt(i1 / this.nx0) - 2;
-        x2 = parseInt(i2 / this.nx0) - 2;
+        x1 = Math.floor(i1 / this.nx0) - 2;
+        x2 = Math.floor(i2 / this.nx0) - 2;
         text += x1 + "," + y1 + ";" + x2 + "," + y2 + "\n";
       }
       text += "--------\n";
@@ -1308,14 +1308,13 @@ export class Puzzle {
         "*Skew:0,0\n" +
         "*Offset:0,0\n" +
         "*Stroke:100,2,0,1,1\n";
-      var i1, i2, x1, x2, y1, y2;
       for (var i in this.pu_q.lineE) {
-        i1 = Number(i.split(",")[0]) - this.nx0 * this.ny0;
-        i2 = Number(i.split(",")[1]) - this.nx0 * this.ny0;
-        y1 = (i1 % this.nx0) - 1;
-        y2 = (i2 % this.nx0) - 1;
-        x1 = parseInt(i1 / this.nx0) - 1;
-        x2 = parseInt(i2 / this.nx0) - 1;
+        const i1 = Number(i.split(",")[0]) - this.nx0 * this.ny0;
+        const i2 = Number(i.split(",")[1]) - this.nx0 * this.ny0;
+        const y1 = (i1 % this.nx0) - 1;
+        const y2 = (i2 % this.nx0) - 1;
+        const x1 = Math.floor(i1 / this.nx0) - 1;
+        const x2 = Math.floor(i2 / this.nx0) - 1;
         text += x1 + "," + y1 + ";" + x2 + "," + y2 + "\n";
       }
       text += "--------\n";
@@ -1334,13 +1333,13 @@ export class Puzzle {
         "*Offset:0,0\n" +
         "*Stroke:100,2,0,1,1\n";
       var i1, i2, x1, x2, y1, y2;
-      for (var i in this.pu_a.lineE) {
+      for (const i in this.pu_a.lineE) {
         i1 = Number(i.split(",")[0]) - this.nx0 * this.ny0;
         i2 = Number(i.split(",")[1]) - this.nx0 * this.ny0;
         y1 = (i1 % this.nx0) - 1;
         y2 = (i2 % this.nx0) - 1;
-        x1 = parseInt(i1 / this.nx0) - 1;
-        x2 = parseInt(i2 / this.nx0) - 1;
+        x1 = Math.floor(i1 / this.nx0) - 1;
+        x2 = Math.floor(i2 / this.nx0) - 1;
         text += x1 + "," + y1 + ";" + x2 + "," + y2 + "\n";
       }
       text += "--------\n";
@@ -1398,8 +1397,8 @@ export class Puzzle {
         "*Alignment:0,0\n" +
         "*Fill:100\n" +
         "*Stroke:-1,0,0,1\n";
-      for (var j = 2; j < this.ny0 - 2; j++) {
-        for (var i = 2; i < this.nx0 - 2; i++) {
+      for (let j = 2; j < this.ny0 - 2; j++) {
+        for (let i = 2; i < this.nx0 - 2; i++) {
           if (
             this.pu_a.number[i + j * this.nx0] &&
             this.pu_a.number[i + j * this.nx0][2] === "1" &&
@@ -2530,7 +2529,7 @@ export class Puzzle {
       if (
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "1"
       ) {
-        if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+        if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
           array = "line";
           var key =
             Math.min(num, this.last).toString() +
@@ -2542,8 +2541,8 @@ export class Puzzle {
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "2"
       ) {
         if (
-          this.point[num].adjacent.indexOf(parseInt(this.last)) != -1 ||
-          this.point[num].adjacent_dia.indexOf(parseInt(this.last)) != -1
+          this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1 ||
+          this.point[num].adjacent_dia.indexOf(Math.floor(this.last)) != -1
         ) {
           array = "line";
           var key =
@@ -2556,7 +2555,7 @@ export class Puzzle {
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "5"
       ) {
         //centerline
-        if (this.point[num].neighbor.indexOf(parseInt(this.last)) != -1) {
+        if (this.point[num].neighbor.indexOf(Math.floor(this.last)) != -1) {
           array = "line";
           var key =
             Math.min(num, this.last).toString() +
@@ -2664,7 +2663,7 @@ export class Puzzle {
       if (
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "1"
       ) {
-        if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+        if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
           array = "lineE";
           var key =
             Math.min(num, this.last).toString() +
@@ -2676,8 +2675,8 @@ export class Puzzle {
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "2"
       ) {
         if (
-          this.point[num].adjacent.indexOf(parseInt(this.last)) != -1 ||
-          this.point[num].adjacent_dia.indexOf(parseInt(this.last)) != -1
+          this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1 ||
+          this.point[num].adjacent_dia.indexOf(Math.floor(this.last)) != -1
         ) {
           array = "lineE";
           var key =
@@ -2689,7 +2688,7 @@ export class Puzzle {
       } else if (
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "5"
       ) {
-        if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+        if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
           array = "deletelineE";
           var key =
             Math.min(num, this.last).toString() +
@@ -2731,7 +2730,7 @@ export class Puzzle {
       var line_style =
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1];
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         //隣接していたら
         array = "wall";
         var key =
@@ -2880,7 +2879,7 @@ export class Puzzle {
       var line_style =
         this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1];
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         //隣接していたら
         array = "cage";
         var key =
@@ -2963,8 +2962,8 @@ export class Puzzle {
 
   re_special(num, arr) {
     if (
-      this.point[num].adjacent.indexOf(parseInt(this.last)) != -1 ||
-      this.point[num].adjacent_dia.indexOf(parseInt(this.last)) != -1
+      this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1 ||
+      this.point[num].adjacent_dia.indexOf(Math.floor(this.last)) != -1
     ) {
       //隣接していたら
       if (this[this.mode.qa][arr].slice(-1)[0].slice(-2)[0] === num) {
@@ -3124,7 +3123,7 @@ export class Puzzle {
       array_list = ["symbol"];
     }
 
-    for (var array of array_list) {
+    for (const array of array_list) {
       if (this[this.mode.qa][array][num]) {
         this.drawing = true;
         this.start_point[array] = num;
@@ -3508,7 +3507,7 @@ export class Puzzle {
     if (this.drawing_mode != -1 && this.point[num].type === 0) {
       var line_style = 3;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "line";
         var key =
           Math.min(num, this.last).toString() +
@@ -3531,7 +3530,7 @@ export class Puzzle {
     if (this.drawing_mode != -1 && this.point[num].type === 0) {
       var line_style = 3;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "lineE";
         var key =
           Math.min(num, this.last).toString() +
@@ -3590,7 +3589,7 @@ export class Puzzle {
     if (this.drawing_mode != -1 && this.point[num].type === 1) {
       var line_style = 3;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "lineE";
         var key =
           Math.min(num, this.last).toString() +
@@ -3633,7 +3632,7 @@ export class Puzzle {
     if (this.drawing_mode != -1 && this.point[num].type === 0) {
       var line_style = 3;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "line";
         var key =
           Math.min(num, this.last).toString() +
@@ -3676,7 +3675,7 @@ export class Puzzle {
     if (this.drawing_mode != -1 && this.point[num].type === 0) {
       var line_style;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "line";
         var key =
           Math.min(num, this.last).toString() +
@@ -3720,7 +3719,7 @@ export class Puzzle {
     ) {
       var line_style = 40;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "line";
         var key =
           Math.min(num, this.last).toString() +
@@ -3737,7 +3736,7 @@ export class Puzzle {
     ) {
       var line_style = 3;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "lineE";
         var key =
           Math.min(num, this.last).toString() +
@@ -3880,7 +3879,7 @@ export class Puzzle {
     if (this.drawing_mode != -1 && this.point[num].type === 0) {
       var line_style = 3;
       var array;
-      if (this.point[num].adjacent.indexOf(parseInt(this.last)) != -1) {
+      if (this.point[num].adjacent.indexOf(Math.floor(this.last)) != -1) {
         array = "line";
         var key =
           Math.min(num, this.last).toString() +

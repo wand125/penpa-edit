@@ -1,3 +1,5 @@
+import { State } from "../State";
+
 export class Panel {
     panelmode: string;
     canvasf: HTMLCanvasElement;
@@ -12,7 +14,9 @@ export class Panel {
     cont: any[];
     str: string;
     edit_num: number;
-    constructor() {
+    parent: State;
+    constructor(state) {
+        this.parent = state;
         this.panelmode = "number";
         this.canvasf = document.getElementById("float-canvas") as HTMLCanvasElement;
         this.ctxf = this.canvasf.getContext("2d");
@@ -45,11 +49,10 @@ export class Panel {
     }
 
     inputtext() {
-        var input_text = "";
-        input_text = document.getElementById("inputtext")['value'];
-        pu.key_space();
+        const input_text = document.getElementById("inputtext")['value'];
+        this.parent.pu.key_space();
         for (var i = 0; i < input_text.length; i++) {
-            pu.key_number(input_text[i]);
+            this.parent.pu.key_number(input_text[i]);
         }
     }
 
@@ -58,9 +61,9 @@ export class Panel {
     }
 
     canvas_size_setting(height) {
-        this.canvasf.width = ((this.sizef + this.spacef) * this.nxf - this.spacef) * pu.resol;
-        this.canvasf.height = ((this.sizef + this.spacef) * this.nyf - this.spacef) * pu.resol;
-        this.ctxf.scale(pu.resol, pu.resol);
+        this.canvasf.width = ((this.sizef + this.spacef) * this.nxf - this.spacef) * this.parent.pu.resol;
+        this.canvasf.height = ((this.sizef + this.spacef) * this.nyf - this.spacef) * this.parent.pu.resol;
+        this.ctxf.scale(this.parent.pu.resol, this.parent.pu.resol);
         this.canvasf.style.width = ((this.sizef + this.spacef) * this.nxf - this.spacef).toString() + "px";
         this.canvasf.style.height = ((this.sizef + this.spacef) * this.nyf - this.spacef).toString() + "px";
         this.fkh.style.width = ((this.sizef + this.spacef) * this.nxf + this.spacef).toString() + "px";
@@ -69,30 +72,33 @@ export class Panel {
     }
 
     draw_number() {
+        const pu = this.parent.pu;
         set_surface_style(this.ctxf, 99);
         for (var i = 0; i < this.nxf * this.nyf; i++) {
             this.ctxf.fillRect((i % this.nxf) * (this.sizef + this.spacef), (i / this.nxf | 0) * (this.sizef + this.spacef), this.sizef, this.sizef);
         }
         for (var i = 0; i < this.nxf * this.nyf; i++) {
-            set_font_style(this.ctxf, 0.8 * this.sizef.toString(10), pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][1]);
+            set_font_style(this.ctxf, (0.8 * this.sizef).toString(10), pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][1]);
             if (this.ctxf.fillStyle === "#ffffff") { this.ctxf.fillStyle = "#000000"; }
             this.ctxf.text(this.cont[i].toString(), (i % this.nxf + 0.45) * (this.sizef + this.spacef), ((i / this.nxf | 0) + 0.55) * (this.sizef + this.spacef));
         }
     }
 
     draw_unicodesymbol() {
+        const pu = this.parent.pu;
         set_surface_style(this.ctxf, 99);
         for (var i = 0; i < this.nxf * this.nyf; i++) {
             this.ctxf.fillRect((i % this.nxf) * (this.sizef + this.spacef), (i / this.nxf | 0) * (this.sizef + this.spacef), this.sizef, this.sizef);
         }
         for (var i = 0; i < this.nxf * this.nyf; i++) {
-            set_font_style(this.ctxf, 0.8 * this.sizef.toString(10), pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][1]);
+            set_font_style(this.ctxf, (0.8 * this.sizef).toString(10), pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][1]);
             if (this.ctxf.fillStyle === "#ffffff") { this.ctxf.fillStyle = "#000000"; }
             this.ctxf.text(this.cont[i], (i % this.nxf + 0.45) * (this.sizef + this.spacef), ((i / this.nxf | 0) + 0.55) * (this.sizef + this.spacef));
         }
     }
 
     draw_panel() {
+        const pu = this.parent.pu;
         this.select_close();
         document.getElementById("float-key-board").style.display = "inline";
         document.getElementById("float-key-text").style.display = "none";
