@@ -1,5 +1,21 @@
 import { boot } from "./general/boot";
-import { onMove, onUp, onContextmenu, onKeyDown, onOut, onDown } from './main/Control';
+import {
+  onMove,
+  onUp,
+  onContextmenu,
+  onKeyDown,
+  onOut,
+  onDown,
+} from "./main/Control";
+import {
+  redoDown,
+  redoLeave,
+  redoUp,
+  undoDown,
+  undoLeave,
+  undoUp,
+} from "./main/Undo";
+import { window_click } from "./main/WindowClick";
 import { State } from "./State";
 
 const state = new State();
@@ -13,9 +29,9 @@ window.onload = () => {
     "beforeunload",
     (eve) => {
       if (document.getElementById("english")["value"] === "English") {
-        eve["returnValue"] = "ページを移動します";
+        return "ページを移動します";
       } else {
-        eve["returnValue"] = "Move page.";
+        return "Move page.";
       }
     },
     { passive: false }
@@ -41,8 +57,6 @@ window.onload = () => {
   }
   */
 
-  var checkms = 0; //hover event用一時変数
-
   const statedController = (func) => {
     return (e) => {
       func(state.pu, canvas, e);
@@ -50,34 +64,81 @@ window.onload = () => {
   };
 
   //canvas
-  canvas.addEventListener("touchend", statedController(onUp), { passive: false });
-  canvas.addEventListener("mouseup", statedController(onUp), { passive: false });
-  canvas.addEventListener("touchmove", statedController(onMove), { passive: false });
-  canvas.addEventListener("mousemove", statedController(onMove), { passive: false });
-  canvas.addEventListener("mouseout", statedController(onOut), { passive: false });
-  canvas.addEventListener("contextmenu", statedController(onContextmenu), { passive: false });
-  document.addEventListener("keydown", statedController(onKeyDown), { passive: false });
+  canvas.addEventListener("touchend", statedController(onUp), {
+    passive: false,
+  });
+  canvas.addEventListener("mouseup", statedController(onUp), {
+    passive: false,
+  });
+  canvas.addEventListener("touchmove", statedController(onMove), {
+    passive: false,
+  });
+  canvas.addEventListener("mousemove", statedController(onMove), {
+    passive: false,
+  });
+  canvas.addEventListener("mouseout", statedController(onOut), {
+    passive: false,
+  });
+  canvas.addEventListener("contextmenu", statedController(onContextmenu), {
+    passive: false,
+  });
+  document.addEventListener("keydown", statedController(onKeyDown), {
+    passive: false,
+  });
 
-  let count_undo = 0;
-  let count_redo = 0;
-  let timer;
-  var undo_button = document.getElementById("tb_undo");
-  var redo_button = document.getElementById("tb_redo");
+  const redoController = (func) => {
+    return (e) => {
+      func(undoState, e);
+    };
+  };
+  const undoState = {
+    count_undo: 0,
+    count_redo: 0,
+    timer: -1,
+    undo_button: document.getElementById("tb_undo"),
+    redo_button: document.getElementById("tb_redo"),
+    pu: state.pu,
+  };
 
-  undo_button.addEventListener("touchstart", undoDown, { passive: false });
-  undo_button.addEventListener("mousedown", undoDown, { passive: false });
-  undo_button.addEventListener("touchend", undoUp, { passive: false });
-  undo_button.addEventListener("mouseup", undoUp, { passive: false });
-  undo_button.addEventListener("touchend", undoLeave, { passive: false });
-  undo_button.addEventListener("mouseleave", undoLeave, { passive: false });
+  const { undo_button, redo_button } = undoState;
+  undo_button.addEventListener("touchstart", redoController(undoDown), {
+    passive: false,
+  });
+  undo_button.addEventListener("mousedown", redoController(undoDown), {
+    passive: false,
+  });
+  undo_button.addEventListener("touchend", redoController(undoUp), {
+    passive: false,
+  });
+  undo_button.addEventListener("mouseup", redoController(undoUp), {
+    passive: false,
+  });
+  undo_button.addEventListener("touchend", redoController(undoLeave), {
+    passive: false,
+  });
+  undo_button.addEventListener("mouseleave", redoController(undoLeave), {
+    passive: false,
+  });
 
   undo_button.addEventListener("contextmenu", offcontext, { passive: false });
-  redo_button.addEventListener("touchstart", redoDown, { passive: false });
-  redo_button.addEventListener("mousedown", redoDown, { passive: false });
-  redo_button.addEventListener("touchend", redoUp, { passive: false });
-  redo_button.addEventListener("mouseup", redoUp, { passive: false });
-  redo_button.addEventListener("touchend", redoLeave, { passive: false });
-  redo_button.addEventListener("mouseleave", redoLeave, { passive: false });
+  redo_button.addEventListener("touchstart", redoController(redoDown), {
+    passive: false,
+  });
+  redo_button.addEventListener("mousedown", redoController(redoDown), {
+    passive: false,
+  });
+  redo_button.addEventListener("touchend", redoController(redoUp), {
+    passive: false,
+  });
+  redo_button.addEventListener("mouseup", redoController(redoUp), {
+    passive: false,
+  });
+  redo_button.addEventListener("touchend", redoController(redoLeave), {
+    passive: false,
+  });
+  redo_button.addEventListener("mouseleave", redoController(redoLeave), {
+    passive: false,
+  });
 
   redo_button.addEventListener("contextmenu", offcontext, { passive: false });
 
@@ -85,564 +146,7 @@ window.onload = () => {
     e.preventDefault();
   }
 
-  function undoDown(e) {
-    e.preventDefault();
-    undo_button.classList.add("active");
-    count_redo = 0;
-    new_timer = setInterval(() => {
-      count_undo++;
-      if (count_undo > 5) {
-        pu.undo();
-      }
-    }, 25);
-    if (new_timer !== timer) {
-      clearInterval(timer);
-      count = 0;
-    }
-    timer = new_timer;
-  }
-
-  function undoUp(e) {
-    e.preventDefault();
-    undo_button.classList.remove("active");
-    if (count_undo) {
-      clearInterval(timer);
-      count_undo = 0;
-    }
-  }
-
-  function undoLeave(e) {
-    e.preventDefault();
-    undo_button.classList.remove("active");
-    clearInterval(timer);
-    count_undo = 0;
-  }
-
-  function redoDown(e) {
-    e.preventDefault();
-    redo_button.classList.add("active");
-    count_undo = 0;
-    new_timer = setInterval(() => {
-      count_redo++;
-      if (count_redo > 5) {
-        pu.redo();
-      }
-    }, 25);
-    if (new_timer !== timer) {
-      clearInterval(timer);
-      count = 0;
-    }
-    timer = new_timer;
-  }
-
-  function redoUp(e) {
-    e.preventDefault();
-    if (count_redo) {
-      redo_button.classList.remove("active");
-      clearInterval(timer);
-      count_redo = 0;
-    }
-  }
-
-  function redoLeave(e) {
-    e.preventDefault();
-    redo_button.classList.remove("active");
-    clearInterval(timer);
-    count_redo = 0;
-  }
-
   //クリックイベント
-  document.addEventListener("touchstart", window_click, { passive: false });
-  document.addEventListener("mousedown", window_click, { passive: false });
-
-  function window_click(e) {
-    //modalwindow
-    if (e.target.className === "modal") {
-      document.getElementById(e.target.id).style.display = "none";
-      e.preventDefault();
-    }
-    switch (e.target.id) {
-      //canvas
-      case "canvas":
-        document.getElementById("inputtext").blur(); //テキストボックスからフォーカスを外す
-        statedController(onDown)(e);
-        if (checkms === 0) {
-          e.preventDefault();
-        }
-        break;
-      //top/bottom button
-      case "newboard":
-        newboard();
-        e.preventDefault();
-        break;
-      case "rotation":
-        rotation();
-        e.preventDefault();
-        break;
-      case "newsize":
-        newsize();
-        e.preventDefault();
-        break;
-      case "saveimage":
-        saveimage();
-        e.preventDefault();
-        break;
-      case "savetext":
-        savetext();
-        e.preventDefault();
-        break;
-      //case "duplicate":
-      //duplicate();
-      //  break;
-      case "tb_undo":
-        pu.undo();
-        e.preventDefault();
-        break;
-      case "tb_redo":
-        pu.redo();
-        e.preventDefault();
-        break;
-      case "tb_reset":
-        ResetCheck();
-        break;
-      case "tb_delete":
-        DeleteCheck();
-        break;
-
-      //panel_menu
-      case "panel_1_lbmenu":
-        panel_pu.mode_set("number");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_A_lbmenu":
-        panel_pu.mode_set("alphabet");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_a_lbmenu":
-        panel_pu.mode_set("alphabet_s");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_!_lbmenu":
-        panel_pu.mode_set("key_symbol");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_ja_K_lbmenu":
-        panel_pu.mode_set("ja_K");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_ja_H_lbmenu":
-        panel_pu.mode_set("ja_H");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_Text_lbmenu":
-        panel_pu.mode_set("Text");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_Kan_lbmenu":
-        panel_pu.mode_set("Kan");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_Rome_lbmenu":
-        panel_pu.mode_set("Rome");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_Greek_lbmenu":
-        panel_pu.mode_set("Greek");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_europe_lbmenu":
-        panel_pu.mode_set("europe");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_Cyrillic_lbmenu":
-        panel_pu.mode_set("Cyrillic");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_Chess_lbmenu":
-        panel_pu.mode_set("Chess");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_card_lbmenu":
-        panel_pu.mode_set("card");
-        panel_pu.select_close();
-        e.preventDefault();
-        break;
-      case "panel_select_lbmenu":
-        panel_pu.select_open();
-        e.preventDefault();
-        break;
-      case "closeBtn_input1":
-        panel_pu.inputtext();
-        e.preventDefault();
-        break;
-      case "closeBtn_input2":
-        panel_pu.cleartext();
-        e.preventDefault();
-        break;
-      case "float-canvas":
-        f_mdown(e);
-        if (checkms === 0) {
-          e.preventDefault();
-        }
-        break;
-      //savetext
-      case "address_edit":
-        savetext_edit();
-        e.preventDefault();
-        break;
-      case "address_solve":
-        savetext_solve();
-        e.preventDefault();
-        break;
-      case "expansion":
-        expansion();
-        e.preventDefault();
-        break;
-      case "pp_file":
-        make_ppfile();
-        e.preventDefault();
-        break;
-      case "savetextarea":
-        return;
-      case "savetextname":
-        return;
-      case "savetextarea_pp":
-        return;
-      case "closeBtn_save1":
-        savetext_copy();
-        e.preventDefault();
-        break;
-      case "closeBtn_save2":
-        savetext_download();
-        e.preventDefault();
-        break;
-      //case "closeBtn_save3":
-      //  savetext_window();
-      //  break;
-      case "closeBtn_save4":
-        document.getElementById("modal-save").style.display = "none";
-        e.preventDefault();
-        break;
-      case "closeBtn_save5":
-        savetext_withsolution();
-        e.preventDefault();
-        break;
-      case "solution_open":
-        solution_open();
-        e.preventDefault();
-        break;
-      case "pp_file_open":
-        pp_file_open();
-        e.preventDefault();
-        break;
-      case "rt_right":
-        pu.rotate_right();
-        e.preventDefault();
-        break;
-      case "rt_left":
-        pu.rotate_left();
-        e.preventDefault();
-        break;
-      case "rt_LR":
-        pu.rotate_LR();
-        e.preventDefault();
-        break;
-      case "rt_UD":
-        pu.rotate_UD();
-        e.preventDefault();
-        break;
-      case "rt_center":
-        pu.rotate_center();
-        e.preventDefault();
-        break;
-      case "rt_size":
-        pu.rotate_size();
-        e.preventDefault();
-        break;
-      case "rt_reset":
-        pu.rotate_reset();
-        e.preventDefault();
-        break;
-      case "closeBtn_rotate1":
-        document.getElementById("modal-rotate").style.display = "none";
-        e.preventDefault();
-        break;
-      //saveimage
-      case "nb_margin1_lb":
-        document.getElementById("nb_margin1").checked = true;
-        e.preventDefault();
-        break;
-      case "nb_margin2_lb":
-        document.getElementById("nb_margin2").checked = true;
-        e.preventDefault();
-        break;
-      case "saveimagename":
-        return;
-      //case "closeBtn_image1":
-      //  saveimage_window();
-      //  break;
-      case "closeBtn_image2":
-        saveimage_download();
-        e.preventDefault();
-        break;
-      case "closeBtn_image3":
-        document.getElementById("modal-image").style.display = "none";
-        e.preventDefault();
-        break;
-      //newboard
-      case "nb_size1":
-      case "nb_size2":
-      case "nb_size3":
-        return;
-      //textbox
-      case "nb_space1":
-      case "nb_space2":
-      case "nb_space3":
-      case "nb_space4":
-        return;
-      //textbox
-      case "nb_grid1_lb":
-      case "nb_grid2_lb":
-      case "nb_grid3_lb":
-      case "nb_lat1_lb":
-      case "nb_lat2_lb":
-      case "nb_out1_lb":
-      case "nb_out2_lb":
-        pu.mode_grid(e.target.id.slice(0, -3));
-        e.preventDefault();
-        break;
-      case "closeBtn_nb1":
-        CreateCheck();
-        e.preventDefault();
-        break;
-      case "closeBtn_nb2":
-        newgrid();
-        e.preventDefault();
-        break;
-      case "closeBtn_nb3":
-        document.getElementById("modal").style.display = "none";
-        e.preventDefault();
-        break;
-      //newsize
-      case "nb_size3_r":
-        return;
-      case "closeBtn_size1":
-        newgrid_r();
-        e.preventDefault();
-        break;
-      case "closeBtn_size2":
-        document.getElementById("modal-newsize").style.display = "none";
-        e.preventDefault();
-        break;
-      case "float-key-header":
-        mdown(e);
-        e.preventDefault();
-        break;
-      case "float-key-header-lb":
-        mdown(e);
-        e.preventDefault();
-        break;
-      //buttons
-      case "panel_button":
-        panel_onoff();
-        e.preventDefault();
-        break;
-      case "edge_button":
-        edge_onoff();
-        e.preventDefault();
-        break;
-      case "pu_q_label":
-        pu.mode_qa("pu_q");
-        e.preventDefault();
-        break;
-      case "pu_a_label":
-        pu.mode_qa("pu_a");
-        e.preventDefault();
-        break;
-    }
-    //メインモード
-    if (e.target.id.slice(0, 3) === "mo_") {
-      pu.mode_set(e.target.id.slice(3, -3));
-      e.preventDefault();
-    }
-    //サブモード
-    if (e.target.id.slice(0, 4) === "sub_") {
-      pu.submode_check(e.target.id.slice(0, -3));
-      e.preventDefault();
-    }
-    //スタイルモード
-    if (e.target.id.slice(0, 3) === "st_") {
-      pu.stylemode_check(e.target.id.slice(0, -3));
-      e.preventDefault();
-    }
-    //コンビモード
-    if (e.target.id.slice(0, 9) === "combisub_") {
-      pu.subcombimode(e.target.id.slice(9));
-      e.preventDefault();
-    }
-    //シンボル
-    if (e.target.id.slice(0, 3) === "ms_") {
-      checkms = 1;
-      pu.subsymbolmode(e.target.id.slice(3));
-      e.preventDefault();
-      //シンボルホバーetc
-    } else if (e.target.id.slice(0, 2) === "ms") {
-      checkms = 1;
-      return;
-    } else if (checkms === 1) {
-      checkms = 0;
-      return;
-    }
-  }
-
-  //panel(drag_window)
-  var x_window;
-  var y_window;
-
-  function mdown(e) {
-    var elements = document.getElementById("float-key-header");
-    elements.classList.add("drag");
-
-    if (e.type === "mousedown") {
-      var event = e;
-    } else {
-      var event = e.changedTouches[0];
-    }
-
-    x_window = event.pageX - elements.offsetLeft;
-    y_window = event.pageY - elements.offsetTop;
-    var drag = document.getElementsByClassName("drag")[0];
-    document.body.addEventListener("touchmove", mmove, { passive: false });
-    document.body.addEventListener("mousemove", mmove, { passive: false });
-  }
-
-  function mmove(e) {
-    var drag = document.getElementsByClassName("drag")[0];
-    var body = document.getElementById("float-key-body");
-    if (e.type === "mousemove") {
-      var event = e;
-    } else {
-      var event = e.changedTouches[0];
-    }
-    e.preventDefault();
-
-    drag.style.top = event.pageY - y_window + "px";
-    drag.style.left = event.pageX - x_window + "px";
-    body.style.top = event.pageY - y_window + "px";
-    body.style.left = event.pageX - x_window + "px";
-
-    drag.addEventListener("touchend", mup, { passive: false });
-    drag.addEventListener("mouseup", mup, { passive: false });
-    document.body.addEventListener("touchleave", mup, { passive: false });
-    document.body.addEventListener("mouseleave", mup, { passive: false });
-  }
-
-  function mup(e) {
-    var drag = document.getElementsByClassName("drag")[0];
-    if (drag) {
-      document.body.removeEventListener("touchmove", mmove, { passive: false });
-      document.body.removeEventListener("mousemove", mmove, { passive: false });
-      drag.removeEventListener("touchend", mup, { passive: false });
-      drag.removeEventListener("mouseup", mup, { passive: false });
-      drag.classList.remove("drag");
-    }
-  }
-
-  //パネル入力設定
-  var float_canvas = document.getElementById("float-canvas");
-
-  function f_mdown(e) {
-    if (e.type === "mousedown") {
-      var event = e;
-      var xf = event.offsetX;
-      var yf = event.offsetY;
-    } else {
-      var float_canvas = document.getElementById("float-canvas");
-      var event = e.changedTouches[0];
-      var xf =
-        event.pageX -
-        (float_canvas.getBoundingClientRect().x -
-          document.documentElement.getBoundingClientRect().left);
-      var yf =
-        event.pageY -
-        (float_canvas.getBoundingClientRect().y -
-          document.documentElement.getBoundingClientRect().top);
-    }
-    var sizef = panel_pu.sizef;
-    var numxf = Math.floor(xf / (sizef + 3));
-    var numyf = Math.floor(yf / (sizef + 3));
-    var n = numxf + numyf * panel_pu.nxf;
-    var paneletc = [
-      "ja_K",
-      "ja_H",
-      "Kan",
-      "Rome",
-      "Greek",
-      "Cyrillic",
-      "europe",
-      "Chess",
-      "card",
-    ];
-
-    if (pu.mode[pu.mode.qa].edit_mode === "symbol") {
-      panel_pu.edit_num = n;
-      if (
-        document.getElementById("panel_button").textContent === "ON" &&
-        pu.onoff_symbolmode_list[pu.mode[pu.mode.qa].symbol[0]]
-      ) {
-        if (0 <= panel_pu.edit_num && panel_pu.edit_num <= 8) {
-          pu.key_number((panel_pu.edit_num + 1).toString());
-        } else if (panel_pu.edit_num === 9) {
-          pu.key_number(0);
-        } else if (panel_pu.edit_num === 11) {
-          pu.key_space();
-        }
-      }
-      panel_pu.draw_panel();
-    } else if (panel_pu.panelmode === "number") {
-      if (0 <= n && n <= 9) {
-        pu.key_number(panel_pu.cont[n].toString());
-      } else if (n === 10) {
-        pu.key_backspace();
-      } else if (n === 11) {
-        pu.key_space();
-      }
-    } else if (
-      panel_pu.panelmode === "alphabet" ||
-      panel_pu.panelmode === "alphabet_s"
-    ) {
-      if (0 <= n && n <= 27) {
-        pu.key_number(panel_pu.cont[n].toString());
-      } else if (n === 28) {
-        pu.key_number(" ");
-      } else if (n >= 29) {
-        pu.key_space();
-      }
-    } else if (panel_pu.panelmode === "key_symbol") {
-      if (panel_pu.cont[n] && panel_pu.cont[n] != " ") {
-        pu.key_number(panel_pu.cont[n]);
-      } else if (panel_pu.cont[n] === " ") {
-        pu.key_space();
-      }
-    } else if (paneletc.indexOf(panel_pu.panelmode) != -1) {
-      if (panel_pu.cont[n] && panel_pu.cont[n] != "　") {
-        pu.key_number(panel_pu.cont[n]);
-      } else if (panel_pu.cont[n] === "　") {
-        pu.key_space();
-      }
-    }
-  }
+  document.addEventListener("touchstart", (e) => window_click(state, e), { passive: false });
+  document.addEventListener("mousedown", (e) => window_click(state, e), { passive: false });
 };

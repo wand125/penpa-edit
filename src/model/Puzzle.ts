@@ -1,5 +1,5 @@
 import { Stack } from "./Stack";
-
+import * as Zlib from '../general/node-zlib.js';
 export class Puzzle {
   gridtype: any;
   resol: number;
@@ -286,7 +286,7 @@ export class Puzzle {
           this[this.mode.qa].line = {};
           this[this.mode.qa].freeline = {};
         } else {
-          for (i in this[this.mode.qa].line) {
+          for (const i in this[this.mode.qa].line) {
             if (this[this.mode.qa].line[i] === 98) {
               delete this[this.mode.qa].line[i];
             }
@@ -297,7 +297,7 @@ export class Puzzle {
         if (
           this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "4"
         ) {
-          for (i in this[this.mode.qa].lineE) {
+          for (const i in this[this.mode.qa].lineE) {
             if (this[this.mode.qa].lineE[i] === 98) {
               delete this[this.mode.qa].lineE[i];
             }
@@ -438,11 +438,11 @@ export class Puzzle {
     var min0,
       min = 10e6;
     var num = 0;
-    for (var i in this.point) {
+    for (const i in this.point) {
       min0 = (x - this.point[i].x) ** 2 + (y - this.point[i].y) ** 2;
       if (min0 < min) {
         min = min0;
-        num = i;
+        num = parseInt(i);
       }
     }
     this.center_n = Math.floor(num);
@@ -461,15 +461,15 @@ export class Puzzle {
 
     var min0,
       min = 10e6;
-    var num = 0;
-    for (var i in this.point) {
+    let num = 0;
+    for (const i in this.point) {
       min0 = (x - this.point[i].x) ** 2 + (y - this.point[i].y) ** 2;
       if (min0 < min) {
         min = min0;
-        num = i;
+        num = parseInt(i);
       }
     }
-    this.center_n = parseInt(num);
+    this.center_n = num;
 
     var out = 1;
     if (yu <= 0 || yd >= this.canvasy || xl <= 0 || xr >= this.canvasx) {
@@ -570,7 +570,7 @@ export class Puzzle {
 
   canvasxy_update() {
     //space for imagesave
-    this.size = parseInt(document.getElementById("nb_size3")['value']);
+    this.size = parseInt(document.getElementById("nb_size3")["value"]);
     this.canvasx = this.width_c * this.size;
     this.canvasy = this.height_c * this.size;
   }
@@ -594,7 +594,7 @@ export class Puzzle {
     var cy = this.canvasy;
 
     this.mode[this.mode.qa].edit_mode = "surface"; //選択枠削除用
-    if (document.getElementById("nb_margin2")['checked']) {
+    if (document.getElementById("nb_margin2")["checked"]) {
       var obj = this.gridspace_calculate();
       var yu = obj.yu,
         yd = obj.yd,
@@ -608,18 +608,18 @@ export class Puzzle {
     this.redraw();
 
     var qual;
-    if (document.getElementById("nb_quality1")['checked']) {
+    if (document.getElementById("nb_quality1")["checked"]) {
       qual = 1;
     } else {
       qual = 1.5;
     }
 
     var width = this.canvas.width / qual;
-    resizedCanvas.width = width.toString();
+    resizedCanvas.width = width;
     resizedCanvas.height = (
       (width * this.canvas.height) /
       this.canvas.width
-    ).toString();
+    );
 
     resizedContext.drawImage(
       this.canvas,
@@ -631,7 +631,7 @@ export class Puzzle {
     var canvastext = resizedCanvas.toDataURL("image/png");
     this.mode[this.mode.qa].edit_mode = mode;
 
-    if (document.getElementById("nb_margin2")['checked']) {
+    if (document.getElementById("nb_margin2")["checked"]) {
       this.canvasx = cx;
       this.canvasy = cy;
       this.point_move(xl, yu, 0);
@@ -701,7 +701,12 @@ export class Puzzle {
       }
     }
 
-    var obj = new Object();
+    const obj: {
+      yu?: number;
+      yd?: number;
+      xl?: number;
+      xr?: number;
+    } = {};
     obj.yu = yu;
     obj.yd = yd;
     obj.xl = xl;
@@ -726,7 +731,7 @@ export class Puzzle {
       document.getElementById("style_" + mode).style.display = "inline-block";
     }
 
-    document.getElementById("mo_" + mode)['checked'] = true;
+    document.getElementById("mo_" + mode)["checked"] = true;
     this.submode_check(
       "sub_" +
         mode +
@@ -763,9 +768,9 @@ export class Puzzle {
 
   submode_check(name) {
     if (document.getElementById(name)) {
-      document.getElementById(name)['checked'] = true;
+      document.getElementById(name)["checked"] = true;
       this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] =
-        document.getElementById(name)['value'];
+        document.getElementById(name)["value"];
       this.cursolcheck(); //override
       this.redraw(); //盤面カーソル更新
     }
@@ -782,9 +787,9 @@ export class Puzzle {
 
   stylemode_check(name) {
     if (document.getElementById(name)) {
-      document.getElementById(name)['checked'] = true;
+      document.getElementById(name)["checked"] = true;
       this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1] = parseInt(
-        document.getElementById(name)['value']
+        document.getElementById(name)["value"]
       );
       panel_pu.draw_panel(); //パネル更新
     }
@@ -805,14 +810,14 @@ export class Puzzle {
   }
 
   mode_qa(mode) {
-    document.getElementById(mode)['checked'] = true;
+    document.getElementById(mode)["checked"] = true;
     this.mode.qa = mode;
     this.mode_set(this.mode[this.mode.qa].edit_mode);
     this.redraw(); //cursol更新用
   }
 
   mode_grid(mode) {
-    document.getElementById(mode)['checked'] = true;
+    document.getElementById(mode)["checked"] = true;
     if (mode.slice(0, -1) === "nb_grid") {
       this.mode.grid[0] = mode.slice(-1);
     } else if (mode.slice(0, -1) === "nb_lat") {
@@ -1161,7 +1166,7 @@ export class Puzzle {
       }
     }
 
-    for (var i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i++) {
       sol[i] = sol[i].sort();
     }
     return sol;
@@ -1171,7 +1176,7 @@ export class Puzzle {
     var text = "";
     var gridsize = "19.842";
     var fontsize = "16";
-    var header = document.getElementById("savetextarea_pp")['value'];
+    var header = document.getElementById("savetextarea_pp")["value"];
 
     //セット
     if (header != "") {
@@ -4305,7 +4310,7 @@ export class Puzzle {
       var text = JSON.stringify(this.make_solution());
       if (text === this.solution && this.sol_flag === 0) {
         setTimeout(() => {
-          if (document.getElementById("english")['value'] === "English") {
+          if (document.getElementById("english")["value"] === "English") {
             alert("正解です");
           } else {
             alert("Solved.");

@@ -1,51 +1,51 @@
-function saveimage_window(pu) {
+export const saveimage_window = (pu) => {
   var downloadLink = document.getElementById("download_link");
   var win = window.open();
   var address = pu.resizecanvas();
   win.document.write("<img src='" + address + "'/>");
 }
 
-function savetext() {
+export const savetext = () => {
   document.getElementById("modal-save").style.display = "block";
   document.getElementById("savetextarea")["value"] = "";
 }
 
-function expansion() {
+export const expansion = () => {
   document.getElementById("modal-save2").style.display = "block";
 }
 
-function solution_open() {
+export const solution_open = () => {
   document.getElementById("modal-save2-solution").style.display = "block";
   document.getElementById("modal-save2-pp").style.display = "none";
 }
 
-function pp_file_open() {
+export const pp_file_open = () => {
   document.getElementById("modal-save2-solution").style.display = "none";
   document.getElementById("modal-save2-pp").style.display = "block";
 }
 
-function savetext_edit(pu) {
+export const savetext_edit = (pu) => {
   var text = pu.maketext();
   document.getElementById("savetextarea")["value"] = text;
 }
 
-function savetext_solve(pu) {
+export const savetext_solve = (pu) => {
   var text = pu.maketext_solve();
   document.getElementById("savetextarea")["value"] = text;
 }
 
-function savetext_withsolution(pu) {
+export const savetext_withsolution = (pu) => {
   var text = pu.maketext_solve_solution();
   document.getElementById("savetextarea")["value"] = text;
   document.getElementById("modal-save2").style.display = "none";
 }
 
-function make_ppfile(pu) {
+export const make_ppfile = (pu) => {
   var text = pu.maketext_ppfile();
   document.getElementById("savetextarea")["value"] = text;
 }
 
-function savetext_copy() {
+export const savetext_copy = () => {
   var textarea = document.getElementById("savetextarea") as HTMLTextAreaElement;
   textarea.select();
   var range = document.createRange();
@@ -62,7 +62,7 @@ function savetext_copy() {
   document.execCommand("copy");
 }
 
-function savetext_download() {
+export const savetext_download = () => {
   const text = document.getElementById("savetextarea")["value"];
   const downloadLink = document.getElementById("download_link");
   let filename = document.getElementById("savetextname")["value"];
@@ -111,7 +111,7 @@ export const saveimage = () => {
   document.getElementById("modal-image").style.display = "block";
 };
 
-function saveimage_download(pu) {
+export const saveimage_download = (pu) => {
   var downloadLink = document.getElementById(
     "download_link"
   ) as HTMLAnchorElement;
@@ -145,7 +145,7 @@ function saveimage_download(pu) {
   }
 }
 
-function savetext_window() {
+export const savetext_window = () => {
   var text = document.getElementById("savetextarea")["value"];
   if (text) {
     window.open(text);

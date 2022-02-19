@@ -1,4 +1,4 @@
-function changetype() {
+export const changetype = () => {
   var gridtype = document.getElementById("gridtype")["value"];
   var type = [
     "name_size2",
@@ -164,4 +164,4 @@ function changetype() {
       document.getElementById("nb_size3")["value"] = 38;
       break;
   }
-}
+};

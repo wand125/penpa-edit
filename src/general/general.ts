@@ -1,15 +1,15 @@
 import { create_newboard } from "./create";
 
 
-function newboard() {
+export const newboard = () => {
   document.getElementById("modal").style.display = "block";
 }
 
-function rotation() {
+export const rotation = () => {
   document.getElementById("modal-rotate").style.display = "block";
 }
 
-function CreateCheck(state) {
+export const CreateCheck = (state) => {
   if (document.getElementById("english")["value"] === "English") {
     if (
       confirm(
@@ -31,7 +31,7 @@ function CreateCheck(state) {
   }
 }
 
-function newgrid(pu, panel_pu) {
+export const newgrid = (pu, panel_pu) => {
   var size = parseInt(document.getElementById("nb_size3")["value"]);
   if (15 <= size && size <= 60) {
     pu.reset_frame_newgrid();
@@ -47,7 +47,7 @@ function newgrid(pu, panel_pu) {
   }
 }
 
-function newgrid_r(pu, panel_pu) {
+export const newgrid_r = (pu, panel_pu) => {
   var sizer = parseInt(document.getElementById("nb_size3_r")["value"], 10);
   document.getElementById("nb_size3")["value"] = sizer;
   if (15 <= sizer && sizer <= 60) {
@@ -65,11 +65,11 @@ function newgrid_r(pu, panel_pu) {
   }
 }
 
-function newsize() {
+export const newsize = () => {
   document.getElementById("modal-newsize").style.display = "block";
 }
 
-function panel_onoff(pu) {
+export const panel_onoff = (pu) => {
   if (document.getElementById("panel_button").textContent === "OFF") {
     document.getElementById("panel_button").textContent = "ON";
     document.getElementById("float-key").style.display = "block";
@@ -84,7 +84,7 @@ function panel_onoff(pu) {
   pu.redraw();
 }
 
-function edge_onoff(pu) {
+export const edge_onoff = (pu) => {
   if (document.getElementById("edge_button").textContent === "OFF") {
     document.getElementById("edge_button").textContent = "ON";
   } else {
@@ -95,7 +95,7 @@ function edge_onoff(pu) {
   pu.redraw();
 }
 
-function ResetCheck(pu) {
+export const ResetCheck = (pu) => {
   if (document.getElementById("english")["value"] === "English") {
     if (confirm("選択中の記号を消去します")) {
       pu.reset_selectedmode();
@@ -107,7 +107,7 @@ function ResetCheck(pu) {
   }
 }
 
-function DeleteCheck(pu) {
+export const DeleteCheck = (pu) => {
   var text;
   if (document.getElementById("english")["value"] === "English") {
     if (document.getElementById("pu_q")['checked']) {

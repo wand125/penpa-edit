@@ -1,9 +1,12 @@
+import { analytics_v3 } from "../../../../../../node_modules/googleapis/build/src/index";
+import * as Zlib from 'node-zlib.js';
 import { Panel } from "../model/Panel";
 import { Stack } from "../model/Stack";
+import { changetype } from "./changeType";
 import { make_class } from "./makeClass";
 import { set_solvemode } from "./setSolveMode";
 
-export const load = (pu, urlParam) => {
+export const load = (state, urlParam) => {
   //try{
   var param = urlParam.split("&");
   var paramArray = [];
@@ -19,14 +22,14 @@ export const load = (pu, urlParam) => {
   const ab = Uint8Array.from(_ab.split(""), (e) => e.charCodeAt(0));
   var inflate = new Zlib.RawInflate(ab);
   var plain = inflate.decompress();
-  var rtext = new TextDecoder().decode(plain);
-  rtext = rtext.split("\n");
+  var _rtext = new TextDecoder().decode(plain);
+  const rtext = _rtext.split("\n");
 
   rtext[0] = rtext[0].split("zO").join("null");
   rtext[1] = rtext[1].split("zO").join("null");
 
-  if (!isNaN(rtext[0][0])) {
-    loadver1(paramArray, rtext);
+  if (!isNaN(parseInt(rtext[0][0]))) {
+    loadver1(state, paramArray, rtext);
     return;
   }
 
@@ -44,14 +47,16 @@ export const load = (pu, urlParam) => {
 
   make_class(rtext_para[0]);
 
+  const pu = state.pu;
+
   pu.theta = parseInt(rtext_para[4]);
   pu.reflect[0] = parseInt(rtext_para[5]);
   pu.reflect[1] = parseInt(rtext_para[6]);
 
   pu.canvasx = parseInt(rtext_para[7]);
   pu.canvasy = parseInt(rtext_para[8]);
-  pu.width_c = pu.canvasx / rtext_para[3];
-  pu.height_c = pu.canvasy / rtext_para[3]; //newgrid更新の際、canvasxyupdateでwidth_cを使うので記録しておく
+  pu.width_c = pu.canvasx / parseFloat(rtext_para[3]);
+  pu.height_c = pu.canvasy / parseFloat(rtext_para[3]); //newgrid更新の際、canvasxyupdateでwidth_cを使うので記録しておく
   pu.center_n = parseInt(rtext_para[9]);
   pu.center_n0 = parseInt(rtext_para[10]);
 
@@ -62,16 +67,17 @@ export const load = (pu, urlParam) => {
     rtext[3] = rtext[3].split(pu.replace[i][1]).join(pu.replace[i][0]);
     rtext[4] = rtext[4].split(pu.replace[i][1]).join(pu.replace[i][0]);
   }
-  rtext[5] = JSON.parse(rtext[5]);
+  let _rtext5 = JSON.parse(rtext[5]);
   for (var i = 1; i < rtext[5].length; i++) {
-    rtext[5][i] = rtext[5][i - 1] + rtext[5][i];
+    _rtext5[i] = _rtext5[i - 1] + _rtext5[i];
   }
+  rtext[5] = _rtext5;
 
-  if (paramArray.m === "edit") {
+  if (paramArray["m"] === "edit") {
     //edit_mode
     var mode = JSON.parse(rtext[2]);
-    for (var i in mode) {
-      for (var j in mode[i]) {
+    for (const i in mode) {
+      for (const j in mode[i]) {
         pu.mode[i][j] = mode[i][j];
       }
     }
@@ -86,7 +92,7 @@ export const load = (pu, urlParam) => {
     pu.centerlist = rtext[5];
 
     //classがコピーできないので別
-    for (var i of ["pu_q", "pu_a"]) {
+    for (const i of ["pu_q", "pu_a"]) {
       for (var j of ["command_redo", "command_undo"]) {
         var t = pu[i][j].__a;
         pu[i][j] = new Stack();
@@ -110,8 +116,8 @@ export const load = (pu, urlParam) => {
     pu.centerlist = rtext[5];
 
     //classがコピーできないので別
-    for (var i of ["pu_q"]) {
-      for (var j of ["command_redo", "command_undo"]) {
+    for (const i of ["pu_q"]) {
+      for (const j of ["command_redo", "command_undo"]) {
         var t = pu[i][j].__a;
         pu[i][j] = new Stack();
         pu[i][j].set(t);
@@ -156,7 +162,7 @@ export const load = (pu, urlParam) => {
   panel_pu.draw_panel();
   pu.mode_qa(pu.mode.qa); //include redraw
 
-  if (paramArray.m === "solve") {
+  if (paramArray['m'] === "solve") {
     //solveモードの場合のみ、mode読み込み
     var rtext_mode = rtext[2].split("~");
     pu.mode.grid = JSON.parse(rtext_mode[0]);
@@ -176,7 +182,8 @@ export const load = (pu, urlParam) => {
   //}
 };
 
-export const loadver1 = (pu, paramArray, rtext) => {
+export const loadver1 = (state, paramArray, rtext) => {
+  const pu = state.pu;
   //初期設定を読み込み
   var rtext_para = rtext[0].split(",");
 
@@ -201,13 +208,18 @@ export const loadver1 = (pu, paramArray, rtext) => {
   pu.search_center();
   pu.center_n0 = pu.center;
 
-  panel_pu = new Panel();
+  state.panel_pu = new Panel();
+
+  let rtext_qa: {
+    pu_q?: any;
+    pu_a?: any;
+  } = {};
 
   if (!paramArray.m) {
     //edit_mode
     var rtext_q = JSON.parse(rtext[1]);
     var rtext_a = JSON.parse(rtext[2]);
-    var rtext_qa = { pu_q: rtext_q, pu_a: rtext_a };
+    rtext_qa = { pu_q: rtext_q, pu_a: rtext_a };
     pu.reset_frame();
 
     var pre_centerlist = pu.centerlist;
@@ -226,7 +238,7 @@ export const loadver1 = (pu, paramArray, rtext) => {
     pu.mode.qa = "pu_a";
     pu.mode_set("surface");
     var rtext_q = JSON.parse(rtext[1]);
-    var rtext_qa = { pu_q: rtext_q };
+    rtext_qa = { pu_q: rtext_q };
     pu.reset_frame();
 
     var pre_centerlist = pu.centerlist;
@@ -237,18 +249,18 @@ export const loadver1 = (pu, paramArray, rtext) => {
       }
     }
 
-    loadqa_arrayver1("pu_q", rtext_qa);
+    loadqa_arrayver1(pu, "pu_q", rtext_qa);
   }
 
   if (paramArray.l === "solvedup") {
     set_solvemode(pu);
   }
 
-  document.getElementById(rtext_para[7]).checked = true;
+  document.getElementById(rtext_para[7])["checked"] = true;
   pu.mode.grid[0] = rtext_para[7].slice(-1);
-  document.getElementById(rtext_para[8]).checked = true;
+  document.getElementById(rtext_para[8])["checked"] = true;
   pu.mode.grid[1] = rtext_para[8].slice(-1);
-  document.getElementById(rtext_para[9]).checked = true;
+  document.getElementById(rtext_para[9])["checked"] = true;
   pu.mode.grid[2] = rtext_para[9].slice(-1);
 
   //描画
@@ -263,10 +275,10 @@ export const loadver1 = (pu, paramArray, rtext) => {
 
   pu.centerlist = pre_centerlist;
   pu.make_frameline(); //盤面描画
-  panel_pu.draw_panel();
+  state.panel_pu.draw_panel();
   pu.mode_qa(pu.mode.qa); //include redraw
   pu.mode_set(pu.mode[pu.mode.qa].edit_mode); //include redraw
-}
+};
 
 const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
   var key, i1, i2, p, q;
@@ -275,53 +287,58 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     pu[qa].surface[pu.centerlist[i]] = rtext_qa[qa][0][i];
   }
   //line
-  for (var i in rtext_qa[qa][1]) {
+  for (const index in rtext_qa[qa][1]) {
+    const i = parseInt(index);
     //lineH
     if (rtext_qa[qa][1][i] != 98) {
-      i1 = (i % (pu.nx - 1)) + parseInt(i / (pu.nx - 1)) * pu.nx;
+      i1 = (i % (pu.nx - 1)) + Math.floor(i / (pu.nx - 1)) * pu.nx;
       i2 = i1 + 1;
       key = pu.centerlist[i1] + "," + pu.centerlist[i2];
       pu[qa].line[key] = rtext_qa[qa][1][i];
     } else {
-      i1 = (i % (pu.nx - 1)) + parseInt(i / (pu.nx - 1)) * pu.nx;
+      i1 = (i % (pu.nx - 1)) + Math.floor(i / (pu.nx - 1)) * pu.nx;
       i2 = pu.point[pu.centerlist[i1]].neighbor[3];
       pu[qa].line[i2] = rtext_qa[qa][1][i];
     }
   }
-  for (var i in rtext_qa[qa][2]) {
+  for (const index in rtext_qa[qa][2]) {
+    const i = parseInt(index);
     //lineV
     if (rtext_qa[qa][2][i] != 98) {
-      i1 = (i % pu.nx) + parseInt(i / pu.nx) * pu.nx;
+      i1 = (i % pu.nx) + Math.floor(i / pu.nx) * pu.nx;
       i2 = i1 + pu.nx;
       key = pu.centerlist[i1] + "," + pu.centerlist[i2];
       pu[qa].line[key] = rtext_qa[qa][2][i];
     } else {
-      i1 = (i % pu.nx) + parseInt(i / pu.nx) * pu.nx;
+      i1 = (i % pu.nx) + Math.floor(i / pu.nx) * pu.nx;
       i2 = pu.point[pu.centerlist[i1]].neighbor[1];
       pu[qa].line[i2] = rtext_qa[qa][2][i];
     }
   }
-  for (var i in rtext_qa[qa][3]) {
+  for (const index in rtext_qa[qa][3]) {
+    const i = parseInt(index);
     //lineDa
-    i1 = (i % (pu.nx - 1)) + parseInt(i / (pu.nx - 1)) * pu.nx;
+    i1 = (i % (pu.nx - 1)) + Math.floor(i / (pu.nx - 1)) * pu.nx;
     i2 = i1 + pu.nx + 1;
     key = pu.centerlist[i1] + "," + pu.centerlist[i2];
     pu[qa].line[key] = rtext_qa[qa][3][i];
   }
-  for (var i in rtext_qa[qa][4]) {
+  for (const index in rtext_qa[qa][4]) {
+    const i = parseInt(index);
     //lineDb
-    i1 = (i % (pu.nx - 1)) + parseInt(i / (pu.nx - 1)) * pu.nx + 1;
+    i1 = (i % (pu.nx - 1)) + Math.floor(i / (pu.nx - 1)) * pu.nx + 1;
     i2 = i1 + pu.nx - 1;
     key = pu.centerlist[i1] + "," + pu.centerlist[i2];
     pu[qa].line[key] = rtext_qa[qa][4][i];
   }
 
   //lineE
-  for (var i in rtext_qa[qa][5]) {
+  for (const index in rtext_qa[qa][5]) {
+    const i = parseInt(index);
     //lineEH
     if (rtext_qa[qa][5][i] != 98) {
-      i1 = (i % pu.nx) + parseInt(i / pu.nx) * pu.nx;
-      if (parseInt(i / pu.nx) === pu.ny) {
+      i1 = (i % pu.nx) + Math.floor(i / pu.nx) * pu.nx;
+      if (Math.floor(i / pu.nx) === pu.ny) {
         i2 = pu.centerlist[i1 - pu.nx] + pu.nx + 4;
       } else {
         i2 = pu.centerlist[i1];
@@ -329,8 +346,8 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
       key = pu.point[i2].surround[0] + "," + pu.point[i2].surround[1];
       pu[qa].lineE[key] = rtext_qa[qa][5][i];
     } else {
-      i1 = (i % pu.nx) + parseInt(i / pu.nx) * pu.nx;
-      if (parseInt(i / pu.nx) === pu.ny) {
+      i1 = (i % pu.nx) + Math.floor(i / pu.nx) * pu.nx;
+      if (Math.floor(i / pu.nx) === pu.ny) {
         i2 = pu.centerlist[i1 - pu.nx] + pu.nx + 4;
       } else {
         i2 = pu.centerlist[i1];
@@ -339,10 +356,11 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     }
   }
 
-  for (var i in rtext_qa[qa][6]) {
+  for (const index in rtext_qa[qa][6]) {
+    const i = parseInt(index);
     //lineEV
     if (rtext_qa[qa][6][i] != 98) {
-      i1 = (i % (pu.nx + 1)) + parseInt(i / (pu.nx + 1)) * pu.nx;
+      i1 = (i % (pu.nx + 1)) + Math.floor(i / (pu.nx + 1)) * pu.nx;
       if (i % (pu.nx + 1) === pu.nx) {
         i2 = pu.centerlist[i1 - 1] + 1;
       } else {
@@ -351,7 +369,7 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
       key = pu.point[i2].surround[0] + "," + pu.point[i2].surround[3];
       pu[qa].lineE[key] = rtext_qa[qa][6][i];
     } else {
-      i1 = (i % (pu.nx + 1)) + parseInt(i / (pu.nx + 1)) * pu.nx;
+      i1 = (i % (pu.nx + 1)) + Math.floor(i / (pu.nx + 1)) * pu.nx;
       if (i % (pu.nx + 1) === pu.nx) {
         i2 = pu.centerlist[i1 - 1] + 1;
       } else {
@@ -402,11 +420,12 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     pu[qa].number[i1] = rtext_qa[qa][11][i];
   }
 
-  for (var i in rtext_qa[qa][12]) {
+  for (const index in rtext_qa[qa][12]) {
+    const i = parseInt(index);
     //numberS
     i1 = (pu.nx + 4) * (pu.ny + 4) * 4 + 4 * (pu.nx + 4) * 2 + 8; //topleft
     p = i % (2 * pu.nx);
-    q = parseInt(i / (2 * pu.nx));
+    q = Math.floor(i / (2 * pu.nx));
     if (p % 2 === 0 && q % 2 === 0) {
       i1 += p * 2 + q * (pu.nx + 4) * 2;
     } else if (p % 2 === 1 && q % 2 === 0) {
@@ -418,32 +437,34 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     }
     pu[qa].numberS[i1] = rtext_qa[qa][12][i];
   }
-  for (var i in rtext_qa[qa][13]) {
+  for (const index in rtext_qa[qa][13]) {
+    const i = parseInt(index);
     //numberE
     p = i % (2 * pu.nx + 1);
-    q = parseInt(i / (2 * pu.nx + 1));
+    q = Math.floor(i / (2 * pu.nx + 1));
     if (p % 2 === 0 && q % 2 === 0) {
       i1 = (pu.nx + 4) * (pu.ny + 4) + (pu.nx + 4) + 1;
-      i1 += parseInt(p * 0.5 + q * 0.5 * (pu.nx + 4));
+      i1 += Math.floor(p * 0.5 + q * 0.5 * (pu.nx + 4));
     } else if (p % 2 === 1 && q % 2 === 0) {
       i1 = (pu.nx + 4) * (pu.ny + 4) * 2 + (pu.nx + 4) + 2;
-      i1 += parseInt((p - 1) * 0.5 + q * 0.5 * (pu.nx + 4));
+      i1 += Math.floor((p - 1) * 0.5 + q * 0.5 * (pu.nx + 4));
     } else if (p % 2 === 0 && q % 2 === 1) {
       i1 = (pu.nx + 4) * (pu.ny + 4) * 3 + 2 * (pu.nx + 4) + 1;
-      i1 += parseInt(p * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
+      i1 += Math.floor(p * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
     } else if (p % 2 === 1 && q % 2 === 1) {
       i1 = 2 * (pu.nx + 4) + 2;
-      i1 += parseInt((p - 1) * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
+      i1 += Math.floor((p - 1) * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
       i1 += "E";
     }
     pu[qa].number[i1] = rtext_qa[qa][13][i];
   }
-  for (var i in rtext_qa[qa][14]) {
+  for (const index in rtext_qa[qa][14]) {
+    const i = parseInt(index);
     //cageH
     i1 = (pu.nx + 4) * (pu.ny + 4) * 4 + 4 * (pu.nx + 4) * 2 + 8; //topleft
-    i2 = (i % (2 * pu.nx - 1)) + parseInt(i / (2 * pu.nx - 1)) * 2 * pu.nx;
+    i2 = (i % (2 * pu.nx - 1)) + Math.floor(i / (2 * pu.nx - 1)) * 2 * pu.nx;
     p = i2 % (2 * pu.nx);
-    q = parseInt(i2 / (2 * pu.nx));
+    q = Math.floor(i2 / (2 * pu.nx));
     if (p % 2 === 0 && q % 2 === 0) {
       i1 += p * 2 + q * (pu.nx + 4) * 2;
       i2 = i1 + 1;
@@ -460,7 +481,8 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     key = i1 + "," + i2;
     pu[qa].cage[key] = rtext_qa[qa][14][i];
   }
-  for (var i in rtext_qa[qa][15]) {
+  for (const index in rtext_qa[qa][15]) {
+    const i = parseInt(index);
     //cageV
     i1 = (pu.nx + 4) * (pu.ny + 4) * 4 + 4 * (pu.nx + 4) * 2 + 8; //topleft
     p = i % (2 * pu.nx);
@@ -510,22 +532,22 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
       pu[qa].symbol[i1][0] = dif_symbol[pu[qa].symbol[i1][0]];
     }
   }
-  for (var i in rtext_qa[qa][17]) {
+  for (const i in rtext_qa[qa][17]) {
     //symbolE
-    p = i % (2 * pu.nx + 1);
-    q = parseInt(i / (2 * pu.nx + 1));
+    p = parseInt(i) % (2 * pu.nx + 1);
+    q = Math.floor(parseInt(i) / (2 * pu.nx + 1));
     if (p % 2 === 0 && q % 2 === 0) {
       i1 = (pu.nx + 4) * (pu.ny + 4) + (pu.nx + 4) + 1;
-      i1 += parseInt(p * 0.5 + q * 0.5 * (pu.nx + 4));
+      i1 += Math.floor(p * 0.5 + q * 0.5 * (pu.nx + 4));
     } else if (p % 2 === 1 && q % 2 === 0) {
       i1 = (pu.nx + 4) * (pu.ny + 4) * 2 + (pu.nx + 4) + 2;
-      i1 += parseInt((p - 1) * 0.5 + q * 0.5 * (pu.nx + 4));
+      i1 += Math.floor((p - 1) * 0.5 + q * 0.5 * (pu.nx + 4));
     } else if (p % 2 === 0 && q % 2 === 1) {
       i1 = (pu.nx + 4) * (pu.ny + 4) * 3 + 2 * (pu.nx + 4) + 1;
-      i1 += parseInt(p * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
+      i1 += Math.floor(p * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
     } else if (p % 2 === 1 && q % 2 === 1) {
       i1 = 2 * (pu.nx + 4) + 2;
-      i1 += parseInt((p - 1) * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
+      i1 += Math.floor((p - 1) * 0.5 + (q - 1) * 0.5 * (pu.nx + 4));
       i1 += "E";
     }
     pu[qa].symbol[i1] = rtext_qa[qa][17][i];
@@ -567,51 +589,51 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     i1 = i.split(",")[0];
     i2 = i.split(",")[1];
 
-    i1 = (i1 % (pu.nx + 1)) + parseInt(i1 / (pu.nx + 1)) * pu.nx;
+    i1 = (i1 % (pu.nx + 1)) + Math.floor(i1 / (pu.nx + 1)) * pu.nx;
     i1 = pu.centerlist[i1];
     if (i1 % (pu.nx + 1) === pu.nx) {
       i1 += 1;
     }
-    if (parseInt(i1 / pu.nx) === pu.ny) {
+    if (Math.floor(i1 / pu.nx) === pu.ny) {
       i1 += pu.nx;
     }
-    i2 = (i2 % (pu.nx + 1)) + parseInt(i2 / (pu.nx + 1)) * pu.nx;
+    i2 = (i2 % (pu.nx + 1)) + Math.floor(i2 / (pu.nx + 1)) * pu.nx;
     i2 = pu.centerlist[i2];
     if (i2 % (pu.nx + 1) === pu.nx) {
       i2 += 1;
     }
-    if (parseInt(i1 / pu.nx) === pu.ny) {
+    if (Math.floor(i1 / pu.nx) === pu.ny) {
       i2 += pu.nx;
     }
     key = pu.point[i1].surround[0] + "," + pu.point[i2].surround[0];
     pu[qa].lineE[key] = rtext_qa[qa][19][i];
   }
-  for (var i of rtext_qa[qa][20]) {
+  for (const i of rtext_qa[qa][20]) {
     //thermo
     pu[qa].thermo.push([]);
-    for (j of i) {
+    for (const j of i) {
       pu[qa].thermo[pu[qa].thermo.length - 1].push(pu.centerlist[j]);
     }
   }
-  for (var i of rtext_qa[qa][21]) {
+  for (const i of rtext_qa[qa][21]) {
     //arrows
     pu[qa].arrows.push([]);
-    for (j of i) {
+    for (const j of i) {
       pu[qa].arrows[pu[qa].arrows.length - 1].push(pu.centerlist[j]);
     }
   }
-  for (var i of rtext_qa[qa][22]) {
+  for (const i of rtext_qa[qa][22]) {
     //direction
     pu[qa].direction.push([]);
-    for (j of i) {
+    for (const j of i) {
       pu[qa].direction[pu[qa].direction.length - 1].push(pu.centerlist[j]);
     }
   }
   if (rtext_qa[qa][23]) {
-    for (var i of rtext_qa[qa][23]) {
+    for (const i of rtext_qa[qa][23]) {
       //squareframe
       pu[qa].squareframe.push([]);
-      for (j of i) {
+      for (const j of i) {
         pu[qa].squareframe[pu[qa].squareframe.length - 1].push(
           pu.centerlist[j]
         );
@@ -622,7 +644,7 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     for (const index in rtext_qa[qa][24]) {
       const i = parseInt(index);
       //deletelineHE
-      if (parseInt(i / pu.nx) === pu.ny) {
+      if (Math.floor(i / pu.nx) === pu.ny) {
         i2 = pu.centerlist[i - pu.nx] + pu.nx + 4;
       } else {
         i2 = pu.centerlist[i];
@@ -635,7 +657,7 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
     for (const index in rtext_qa[qa][25]) {
       //deletelineVE
       const i = parseInt(index);
-      i1 = (i % (pu.nx + 1)) + parseInt(i / (pu.nx + 1)) * pu.nx;
+      i1 = (i % (pu.nx + 1)) + Math.floor(i / (pu.nx + 1)) * pu.nx;
       if (i % (pu.nx + 1) === pu.nx) {
         i2 = pu.centerlist[i1 - 1] + 1;
       } else {
@@ -645,4 +667,4 @@ const loadqa_arrayver1 = (pu, qa, rtext_qa) => {
       pu[qa].deletelineE[key] = rtext_qa[qa][25][i];
     }
   }
-}
+};
